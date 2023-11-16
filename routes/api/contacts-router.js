@@ -9,17 +9,17 @@ const router = express.Router();
 
 router.get("/", contactsController.getAllContacts);
 
-router.get("/:id", contactsController.getContactById);
+// router.get("/:id", contactsController.getContactById);
 
-router.post("/", isEmptyBody, validateBody(contactAddSchema), contactsController.addContact);
+// router.post("/", isEmptyBody, validateBody(contactAddSchema), contactsController.addContact);
 
-router.delete("/:id", contactsController.deleteContactById);
+// router.delete("/:id", contactsController.deleteContactById);
 
-router.put(
-  "/:id",
-  isEmptyBody,
-  validateBody(contactUpdateSchema),
-  contactsController.updateContactById
-);
+// router.put(
+//   "/:id",
+//   isEmptyBody,
+//   validateBody(contactUpdateSchema),
+//   contactsController.updateContactById
+// );
 
 export default router;
