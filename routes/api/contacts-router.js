@@ -1,7 +1,7 @@
 import express from "express";
 
 import contactsController from "../../controllers/contacts-controllers.js";
-import { isEmptyBody, isValidId } from "../../middleware/index.js";
+import { isEmptyBody, isEmptyBodyFavorite, isValidId } from "../../middleware/index.js";
 import { validateBody } from "../../decorators/index.js";
 import {
   contactAddSchema,
@@ -30,7 +30,7 @@ router.put(
 router.patch(
   "/:id/favorite",
   isValidId,
-  isEmptyBody,
+  isEmptyBodyFavorite,
   validateBody(contactFavoriteSchema),
   contactsController.updateContactById
 );
