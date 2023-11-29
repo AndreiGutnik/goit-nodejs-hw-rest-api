@@ -29,7 +29,6 @@ const signup = async (req, res) => {
 const signin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  console.log(user.username);
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
   }
