@@ -2,6 +2,8 @@ import User from "../models/User.js";
 import { HttpError } from "../helpers/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import fs from "fs/promises";
+import path from "path";
 
 import "dotenv/config";
 
@@ -15,8 +17,13 @@ const signup = async (req, res) => {
   if (user) {
     throw HttpError(409, "Email in use");
   }
+  const { path: oldPath, filename } = req.file;
+  const avatarsPath = path.join("public", "avatars");
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  const avatarURL = path.join("avatars", filename);
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const newUser = await User.create({ ...req.body, avatarURL, password: hashPassword });
 
   res.status(201).json({
     user: {
@@ -76,10 +83,30 @@ const updateSubscription = async (req, res) => {
   });
 };
 
+const updateavatar = async (req, res) => {
+  const { _id } = req.user;
+
+  const { path: oldPath, filename } = req.file;
+  const avatarsPath = path.join("public", "avatars");
+  const user = await User.findOne(_id);
+  if (!user) {
+    throw HttpError(404, `Not found`);
+  }
+
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  await fs.rename(newPath, path.resolve("public", user.avatarURL));
+
+  res.json({
+    user,
+  });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   signout: ctrlWrapper(signout),
   updateSubscription: ctrlWrapper(updateSubscription),
+  updateavatar: ctrlWrapper(updateavatar),
 };

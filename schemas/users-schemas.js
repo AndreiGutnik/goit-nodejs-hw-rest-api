@@ -15,3 +15,9 @@ export const userSigninSchema = Joi.object({
 export const updateUserSubscriptionSchema = Joi.object({
   subscription: Joi.string().valid("starter", "pro", "business").required(),
 });
+
+export const userAvatarSchema = Joi.object({
+  avatar: Joi.string().required().messages({
+    "any.required": `missing field "avatar"`,
+  }),
+});
