@@ -18,7 +18,6 @@ authRouter.post(
   upload.single("avatar"),
   isEmptyBody,
   validateBody(userSignupSchema),
-  handleImage,
   authController.signup
 );
 

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import fs from "fs/promises";
 import path from "path";
+import gravatar from "gravatar";
 
 import "dotenv/config";
 
@@ -17,12 +18,9 @@ const signup = async (req, res) => {
   if (user) {
     throw HttpError(409, "Email in use");
   }
-  const { path: oldPath, filename } = req.file;
-  const avatarsPath = path.join("public", "avatars");
-  const newPath = path.join(avatarsPath, filename);
-  await fs.rename(oldPath, newPath);
-  const avatarURL = path.join("avatars", filename);
+
   const hashPassword = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url(email);
   const newUser = await User.create({ ...req.body, avatarURL, password: hashPassword });
 
   res.status(201).json({
@@ -88,17 +86,19 @@ const updateavatar = async (req, res) => {
 
   const { path: oldPath, filename } = req.file;
   const avatarsPath = path.join("public", "avatars");
-  const user = await User.findOne(_id);
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  const avatarURL = path.join("avatars", filename);
+
+  const user = await User.findByIdAndUpdate(_id, { avatarURL });
   if (!user) {
     throw HttpError(404, `Not found`);
   }
 
-  const newPath = path.join(avatarsPath, filename);
-  await fs.rename(oldPath, newPath);
-  await fs.rename(newPath, path.resolve("public", user.avatarURL));
-
   res.json({
-    user,
+    ResponseBody: {
+      avatarURL,
+    },
   });
 };
 
