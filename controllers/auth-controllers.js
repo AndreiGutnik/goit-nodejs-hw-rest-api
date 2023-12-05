@@ -96,9 +96,7 @@ const updateavatar = async (req, res) => {
   }
 
   res.json({
-    ResponseBody: {
-      avatarURL,
-    },
+    avatarURL,
   });
 };
 
