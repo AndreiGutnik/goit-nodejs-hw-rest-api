@@ -2,6 +2,9 @@ import User from "../models/User.js";
 import { HttpError } from "../helpers/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import fs from "fs/promises";
+import path from "path";
+import gravatar from "gravatar";
 
 import "dotenv/config";
 
@@ -15,8 +18,10 @@ const signup = async (req, res) => {
   if (user) {
     throw HttpError(409, "Email in use");
   }
+
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({ ...req.body, avatarURL, password: hashPassword });
 
   res.status(201).json({
     user: {
@@ -76,10 +81,30 @@ const updateSubscription = async (req, res) => {
   });
 };
 
+const updateavatar = async (req, res) => {
+  const { _id } = req.user;
+
+  const { path: oldPath, filename } = req.file;
+  const avatarsPath = path.join("public", "avatars");
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  const avatarURL = path.join("avatars", filename);
+
+  const user = await User.findByIdAndUpdate(_id, { avatarURL });
+  if (!user) {
+    throw HttpError(404, `Not found`);
+  }
+
+  res.json({
+    avatarURL,
+  });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   signout: ctrlWrapper(signout),
   updateSubscription: ctrlWrapper(updateSubscription),
+  updateavatar: ctrlWrapper(updateavatar),
 };
